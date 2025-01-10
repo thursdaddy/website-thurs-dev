@@ -20,9 +20,6 @@
               pkgs.awscli2
               pkgs.hugo
               pkgs.go
-              pkgs.dart-sass
-              pkgs.nodePackages.nodejs
-              pkgs.nodePackages.npm
             ];
           };
         });
