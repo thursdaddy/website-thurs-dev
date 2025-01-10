@@ -1,0 +1,106 @@
+baseURL = 'https://thurs.dev/'
+title = 'yet another tech blog'
+
+# This is what goes in <html lang="">
+languageCode = 'en-us'
+
+# This defines how dates are formatted
+defaultContentLanguage = "en-gb"
+
+# Enable emojis globally
+enableEmoji = true
+ignoreErrors = ["additional-script-loading-error"] # ignore error of loading additional scripts.
+
+[deployment]
+
+[[deployment.targets]]
+name = "production"
+URL = "s3://thurs.dev?region=us-west-2"
+cloudFrontDistributionID = "E34IRN8FH2R5E8"
+
+[module]
+  [[module.imports]]
+    path = "github.com/hugo-sid/hugo-blog-awesome"
+
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/thursdaddy"
+
+[[params.socialIcons]]
+name = "keybase"
+url = "https://keybase.io/thursdaddy"
+
+[[params.socialIcons]]
+name = "Rss"
+url = "index.xml"
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+  [markup.goldmark.renderer]
+    unsafe = true
+
+############################## English language ################################
+[Languages.en-gb]
+  languageName = "English"
+  languageCode = "en-gb"
+  contentDir = "content"
+  weight = 1
+
+  [Languages.en-gb.menu]
+  [[Languages.en-gb.menu.main]]
+    # The page reference (pageRef) is useful for menu highlighting
+    # When pageRef is set, setting `url` is optional; it will be used as a fallback if the page is not found.
+    pageRef="/"
+    name = 'Home'
+    url = '/'
+    weight = 10
+  [[Languages.en-gb.menu.main]]
+    pageRef="posts"
+    name = 'Posts'
+    url = '/posts/'
+    weight = 20
+# [[Languages.en-gb.menu.main]]
+#   pageRef="about"
+#   name = 'About'
+#   url = '/about/'
+#   weight = 30
+
+[Languages.en-gb.params]
+  sitename = "yet another tech blog"
+  defaultColor = "dark" # set color mode: dark, light, auto
+  # Setting it to 'auto' applies the color scheme based on the visitor's device color preference.If you don't specify anything, ignore this parameter, or leave it blank,
+  # the default value is set to 'auto'.
+  # You can take a look at layouts/index.html for more information.
+  description = "Minimal Hugo blog theme with light and dark mode support"
+  mainSections = ['posts']
+  toc = false # set to false to disable table of contents 'globally'
+  tocOpen = false # set to true to open table of contents by default
+  goToTop = true # set to false to disable 'go to top' button
+  additionalScripts = ['js/custom.js', 'js/custom-2.js']
+  # Will try to load 'assets/js/custom.js' and 'assets/js/custom-2.js'.
+  # Your custom scripts will be concatenated to one file `custom.js`.
+  # When building for production it will be minified.
+  # The file `custom.js` is loaded on each page (before body tag ends).
+  dateFormat = "" # date format used to show dates on various pages. If nothing is specified, then "2 Jan 2006" format is used.
+  # See https://gohugo.io/functions/format/#hugo-date-and-time-templating-reference for available date formats.
+  rssFeedDescription = "summary" # available options: 1) summary 2) full
+  # summary - includes a short summary of the blog post in the RSS feed. Generated using Hugo .Summary .
+  # full - includes full blog post in the RSS feed. Generated using Hugo .Content .
+  # By default (or if nothing is specified), summary is used.
+
+[Languages.en-gb.params.author]
+  avatar = "avatar.jpg" # put the file in assets folder; also ensure that image has same height and width
+  # Note: image is not rendered if the resource(avatar image) is not found. No error is displayed.
+  intro = ""
+  name = "Jacob Carney"
+  description = "yet another \"tech\" blog, mostly focused around my experiences with nix and my journey to use NixOS wherever possible."
+
+# Allow to override webmanifest options
+[Languages.en-gb.params.webmanifest]
+  name = "sitename" # will use "params.sitename" or "title" by default
+  short_name = "sitename" # same as name
+  start_url = "/" # will use homepage url by default
+  theme_color = "#434648" # default is "#434648" (base color of text). Also will override html `<meta name="theme-color" />`
+  background_color = "#fff" # by default depend on "params.defaultColor" for "light" or "auto" will be set to "#fff" for dark will be "#131418" (color of dark mode background)
+  display = "standalone"

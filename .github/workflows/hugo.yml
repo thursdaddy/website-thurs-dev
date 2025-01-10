@@ -1,0 +1,36 @@
+name: "Hugo build and publish"
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Creds
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
+          role-duration-seconds: 900
+          aws-region: us-west-2
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Hugo Build
+        run: |
+          nix develop --command \
+            hugo build
+
+      - name: Hugo Deploy
+        run: |
+          nix develop --command \
+            hugo deploy

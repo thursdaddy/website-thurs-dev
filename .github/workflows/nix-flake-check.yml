@@ -1,0 +1,20 @@
+name: Flake ❄️ Checker ✅
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 1 * * 6'
+  workflow_dispatch:
+
+jobs:
+  nix-build:
+    name: Check Flake.lock
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check Nix flake inputs
+        uses: DeterminateSystems/flake-checker-action@v9
