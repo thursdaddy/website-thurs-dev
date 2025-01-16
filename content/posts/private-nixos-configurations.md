@@ -3,9 +3,7 @@ date = '2025-01-15T15:59:04-07:00'
 draft = false
 title = 'Private NixOS Configurations'
 +++
-
-
-# Overview
+## Overview
 
 For newcomers to Nix, especially those coming from other 'traditional' distros, the documentation can be quite challenging. Nix in itself is a programming language and requires a baseline of knowledge to understand what it's doing.
 
@@ -28,14 +26,14 @@ Fortunately, the inherit functionality of [Nix Flakes](https://wiki.nixos.org/wi
 
 This guide will provide a walkthrough on how I personally accomplished creating private container configs and the workflow I established for a somewhat frictionless experience. A second guide will expand on this configuration and demonstrate how I manage secrets using sops-nix and packaging the encrypted files as a Nix package which can be used in both the public and private configurations.
 
-# But before we begin...
+### But before we begin...
 
 There are a fair amount of assumptions that will be made in these guides. First, that you are utilizing flakes with your NixOS config and also have general familiarity with the Nix language. I intend for these guides to be pretty hand-holdy and provide as much detail as possible while hopefully not bogging down those are already familiar with subject matter.
 
 I also want to point out one of the more obvious caveats to using a private repository within your flake which is the requirement of providing authentication to the nix cli when performing builds or `flake.lock` updates. Without authentication, it will error that the repository is not readable and fall back to the most recent cached version. In my case, since my private repository is on GitHub, I will need to create a [GitHub Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) that is scoped with appropriate repository Read Access. This configuration will be covered in a later section of the guide and I will demonstrate the changes I have incorporated into my workflow.
 
 A working example can be found in my [public nixos-config repository](https://github.com/thursdaddy/nixos-config).
-# Private Flake.nix
+## Private Flake.nix
  First we need to create a private repository for our `flake.nix`. I am going to call mine `nixos-thurs`.
 
 ```bash
@@ -114,7 +112,7 @@ warning: creating lock file '/your/nixos/config/path/flake.lock':
 
 Boom, now we're cookin.
 
-# Container Configurations
+## Container Configuration Example
 
 Depending on your level of NixFU, you may or may not be aware of the concept that Nix flakes, in simple terms, are [input -> output processors of nix code](https://zero-to-nix.com/concepts/flakes/).
 
@@ -184,7 +182,7 @@ When you perform your next `nixos-rebuild` you should see the systemctl unit sta
 
 In the next section, I'll cover the workflow and some helper tools I am using to improve my testing and development experience. If you have a good understanding of the requirements and your own methods of madness then I hope this guide has helped expand your knowledge on the utility Nix flakes provide.
 
-# My personal workflow
+## My personal workflow
 You may have picked up on some less-than-ideal processes when dealing with a private input in your `flake.nix`. For starters, having to push your changes to your private repo, then update your `flake.lock` to pull down those new changes does not sounds like a fun time.
 
 What if you just want to do some quick testing? Rather not fill up your private reposistories history with `"fix: typo"` commits? Me too!
@@ -287,7 +285,7 @@ warning: updating lock file '/your/nixos/config/path/nixos-config/flake.lock':
   → 'github:thursdaddy/nixos-thurs/a4c71606282f27c441070b1dc9c94040687fc030?narHash=sha256-hPeBuYXISo3RPPE9s6jCwnXVoBhz7bgKgbiqIV7Ph2I%3D' (2025-01-16)
 ```
 
-# Conclusion
+## Conclusion
 
 I think I've covered just about everything related to setting up and working with a private repository input in your `flake.nix`. Hopefully it was helpful! Feel free to open an [issue](https://github.com/thursdaddy/nixos-config/issues) on my public nixos-config repository if you have any questions or would like clarification on anything.
 
