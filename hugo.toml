@@ -94,7 +94,7 @@ url = "index.xml"
   # Note: image is not rendered if the resource(avatar image) is not found. No error is displayed.
   intro = ""
   name = "Jacob Carney"
-  description = "yet another \"tech\" blog, mostly focused around my experiences with nix and my journey to use NixOS wherever possible."
+  description = "yet another tech blog... heavy on the nix"
 
 # Allow to override webmanifest options
 [Languages.en-gb.params.webmanifest]
