@@ -97,7 +97,7 @@ According to nix.conf [documentation](https://nix.dev/manual/nix/2.17/command-re
 
 Let's go ahead and temporarily set our access token by setting the `NIX_CONFIG` environment variable when we run `nix flake update`
 
-> Tip: Most default bash/zsh terminal configurations will prevent a command from being saved in history if it begins with a space.
+> Tip: Most default bash/zsh terminals will prevent a command from being saved in history if it begins with a space.
 
 ```bash
 $  NIX_CONFIG="access-tokens = github.com=github_pat_...." nix flake update
@@ -113,7 +113,6 @@ warning: creating lock file '/your/nixos/config/path/flake.lock':
 Boom, now we're cookin.
 
 ## Container Configuration Example
-
 Depending on your level of NixFU, you may or may not be aware of the concept that Nix flakes, in simple terms, are [input -> output processors of nix code](https://zero-to-nix.com/concepts/flakes/).
 
 With this concept in mind, we are going to create a custom [nixosModule](https://nixos.wiki/wiki/NixOS_modules) in the `outputs` section of our private `flake.nix`. This output will define our container configurations and because our private repo is an input in our main `flake.nix` the configuration can be imported via `nixosConfigurations.<name>.nixosSystem.modules`. Hopefully that makes sense but stay with me even if it doesn't...
@@ -178,9 +177,38 @@ For this example, I'll do so under my `c137` configuration:
   };
 }
 ```
-When you perform your next `nixos-rebuild` you should see the systemctl unit starting the docker container. Easy as that! Now, obviously, this functionality is not limited to just docker container configurations and should be viable for any configurations that you'd like to keep private. This can even be expanded to creating packages, which will be covered in another guide.
+When you perform your next `nixos-rebuild` you should see the systemctl unit starting the docker container. Easy as that! Now, obviously, this functionality is not limited to just docker container configurations and should be viable for any configurations that you'd like to keep private.
 
-In the next section, I'll cover the workflow and some helper tools I am using to improve my testing and development experience. If you have a good understanding of the requirements and your own methods of madness then I hope this guide has helped expand your knowledge on the utility Nix flakes provide.
+## Persistent access-tokens
+As previously mentioned, we can set our GitHub token via `nix.conf`.
+
+These can either be defined using `nix.extraOptions` in your NixOS configuration using sopx-nix or by modifying your `nix.conf` file.
+
+To set via `nix.conf`, create or edit `$HOME/.config/nix/nix.conf` to contain your access-token.
+```bash
+$ cat $HOME/.config/nix/nix.conf
+access-tokens = github.com=github_pat_...
+```
+
+Setting via `nix.extraOptions` requires [sops-nix](https://github.com/Mic92/sops-nix). If you are not already using sops-nix, I have an upcoming guide which will show you how you setup and use it with your new private repo.
+
+[Credit](https://github.com/NixOS/nix/issues/6536#issuecomment-1254858889).
+
+```nix
+{
+  nix = {
+    extraOptions = ''
+      experimental-features = nix-command flakes
+      !include ${config.sops.secrets.nixAccessTokens.path}
+    '';
+  };
+
+  sops.secrets.nixAccessTokens = {
+    mode = "0440";
+    group = config.users.groups.keys.name;
+  };
+}
+```
 
 ## My personal workflow
 You may have picked up on some less-than-ideal processes when dealing with a private input in your `flake.nix`. For starters, having to push your changes to your private repo, then update your `flake.lock` to pull down those new changes does not sounds like a fun time.
@@ -211,26 +239,7 @@ To get the best of both worlds, quick and easy local development as well as a re
 
 > I use a Justfile with this wrapper script to help streamline commands and arguments. If you're not familiar, check it out, it's like Makefile but simpler.
 
-Setting GitHub authorization token, if it exists:
-```bash
-check_gh_token () {
-  # set GH_TOKEN to pull private flake from private repo
-  if [ -f "/run/secrets/github/TOKEN" ] || [ -f "$HOME/.config/sops-nix/secrets/github/TOKEN" ]; then
-    if [[ ${HOSTNAME:-$HOST} =~ "mbp" ]]; then
-      printf "${ORANGE}GitHub token found!${NC}"
-      GH_TOKEN=$(cat ~/.config/sops-nix/secrets/github/TOKEN)
-    else
-      printf "${ORANGE}GitHub token found!${NC}"
-      GH_TOKEN=$(cat /run/secrets/github/TOKEN)
-    fi
-    export NIX_CONFIG="extra-access-tokens = github.com=${GH_TOKEN}"
-  else
-    printf "${ORANGE}No GH token set.${NC}"
-    GH_TOKEN=''
-  fi
-}
-```
-Updating from public to private inputs for `nixos-thurs`:
+Update input from public GitHub repo to local path for `nixos-thurs`:
 ```bash
 update_to_local_input () {
   # set path based on target
@@ -260,7 +269,6 @@ warning: updating lock file '/your/nixos/config/path/nixos-config/flake.lock':
 Updating from private to public inputs for `nixos-thurs`:
 ```bash
 update_flake_input () {
-  check_gh_token
   if [[ $INPUT == "nixos-thurs" ]]; then
     sed -i 's/      url = ".*'"${INPUT}"'.*/      url = "github:thursdaddy\/'"${INPUT}"'\/main";/g' flake.nix
   fi
@@ -277,7 +285,6 @@ update_flake_input () {
 Example:
 ```bash
 $ just update nixos-thurs
-GitHub token found!
 Updating flake.nix input: nixos-thurs
 warning: updating lock file '/your/nixos/config/path/nixos-config/flake.lock':
 • Updated input 'nixos-thurs':
