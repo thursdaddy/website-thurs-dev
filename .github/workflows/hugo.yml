@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS Creds
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.3
         with:
           role-to-assume: ${{ secrets.ASSUME_ROLE_ARN }}
           role-duration-seconds: 900
