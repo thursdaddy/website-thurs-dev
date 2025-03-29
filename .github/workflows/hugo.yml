@@ -34,3 +34,11 @@ jobs:
         run: |
           nix develop --command \
             hugo deploy
+
+      - name: Gotify Notification
+        uses: eikendev/gotify-action@master
+        with:
+          gotify_api_base: '${{ secrets.gotify_api_base }}'
+          gotify_app_token: '${{ secrets.gotify_app_token }}'
+          notification_title: 'thurs.dev'
+          notification_message: 'Hugo deploy complete.'
